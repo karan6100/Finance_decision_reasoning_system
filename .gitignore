@@ -11,6 +11,7 @@ myvenv/
 *.ipynb
 .ipynb_checkpoints/
 .vscode/
+.codex/
 
 # Secrets and local-only files
 .env
