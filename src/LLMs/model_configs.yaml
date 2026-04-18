@@ -1,0 +1,26 @@
+# LLM Model Configurations
+# Define model settings for different task types and providers
+
+basic:  # Fast, cheap for low-risk factual queries
+  groq:
+    model: "llama-3.1-8b-instant"
+    temperature: 0.0
+  openai:
+    model: "gpt-3.5-turbo"
+    temperature: 0.0
+
+reasoning:  # More capable for medium-risk analysis
+  groq:
+    model: "llama-3.3-70b-versatile"
+    temperature: 0.1
+  openai:
+    model: "openai/gpt-oss-20b"
+    temperature: 0.1
+
+complex:  # High capability for high-risk or complex reasoning
+  groq:
+    model: "groq/compound-mini"
+    temperature: 0.2
+  openai:
+    model: "openai/gpt-4o"
+    temperature: 0.2

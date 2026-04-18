@@ -1,0 +1,16 @@
+langchain
+langgraph
+langchain_community
+langchain_core
+langchain_groq
+langchain_openai
+faiss-cpu
+streamlit
+ipykernel
+pyyaml
+requests>=2.31.0
+fastapi>=0.109.0
+uvicorn>=0.27.0
+pydantic>=2.10
+python-dotenv>=1.0.0
+contextvars

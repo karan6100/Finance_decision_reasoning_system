@@ -1,0 +1,13 @@
+myvenv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints
+*.ipynb
+.env
+api_keys.txt
+src.zip
+.codex
+.vscode
+FLOW_DIAGRAM.md
