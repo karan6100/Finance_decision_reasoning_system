@@ -22,3 +22,5 @@ local_test.txt
 # Generated outputs
 eval_outputs/
 src.zip
+
+.codex/
