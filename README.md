@@ -27,16 +27,8 @@ This project runs:
 ## Local run (optional)
 
 ```bash
-pip install -r requirements.txt
-cd src
-uvicorn backend_api:app --host 0.0.0.0 --port 8000
-```
-
-In another terminal:
-
-```bash
-cd src
-streamlit run streamlit_app.py --server.port 7860 --server.address 0.0.0.0
+docker build -t finance-system .
+docker run -p 7860:7860 finance-system
 ```
 
 ## Logging for Debugging and Production
