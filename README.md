@@ -1,4 +1,3 @@
-
 ---
 title: Finance Decision Assistant
 emoji: 📊
