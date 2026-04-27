@@ -6,6 +6,8 @@ colorFrom: blue
 colorTo: green
 sdk: docker
 app_port: 7860
+license: mit
+short_description: A structured, risk-aware finance reasoning system for safe and reliable decision support.
 ---
 
 
