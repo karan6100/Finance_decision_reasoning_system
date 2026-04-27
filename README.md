@@ -1,10 +1,10 @@
 
-# Finance Decision Assistant 
+# 📊 Finance Decision Assistant 
 - A structured finance reasoning system that evaluates user queries through a decision gate to assess intent and risk, then dynamically selects the appropriate strategy (reasoning, retrieval, or refusal). 
 - It generates responses via controlled reasoning and validates them for factual accuracy, logical soundness, and safety. 
 - Based on validation, the system either delivers a refined answer, retries with improved reasoning, requests specific clarification, or refuses with a clear explanation—ensuring reliable, non-speculative, and context-aware outputs without offering unsafe or unsupported financial advice.
 
-# (Docker Space)
+# Docker Space
 
 This project runs:
 - Streamlit UI on port `7860`
