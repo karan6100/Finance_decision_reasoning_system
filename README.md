@@ -1,4 +1,16 @@
 
+---
+title: Finance Decision Assistant
+emoji: 📊
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+---
+
+
+
+
 # 📊 Finance Decision Assistant 
 - A structured finance reasoning system that evaluates user queries through a decision gate to assess intent and risk, then dynamically selects the appropriate strategy (reasoning, retrieval, or refusal). 
 - It generates responses via controlled reasoning and validates them for factual accuracy, logical soundness, and safety. 
@@ -63,11 +75,4 @@ How to trace one request end-to-end:
 5. Wait for build to complete.
 6. Open the Space URL and test the UI.
 
----
-title: Finance Decision Assistant
-emoji: 📊
-colorFrom: blue
-colorTo: green
-sdk: docker
-app_port: 7860
----
+
