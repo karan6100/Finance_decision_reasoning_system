@@ -1,13 +1,10 @@
----
-title: Finance Decision Assistant
-emoji: 📊
-colorFrom: blue
-colorTo: green
-sdk: docker
-app_port: 7860
----
 
-# Finance Decision Assistant (Docker Space)
+# Finance Decision Assistant 
+- A structured finance reasoning system that evaluates user queries through a decision gate to assess intent and risk, then dynamically selects the appropriate strategy (reasoning, retrieval, or refusal). 
+- It generates responses via controlled reasoning and validates them for factual accuracy, logical soundness, and safety. 
+- Based on validation, the system either delivers a refined answer, retries with improved reasoning, requests specific clarification, or refuses with a clear explanation—ensuring reliable, non-speculative, and context-aware outputs without offering unsafe or unsupported financial advice.
+
+# (Docker Space)
 
 This project runs:
 - Streamlit UI on port `7860`
@@ -65,3 +62,12 @@ How to trace one request end-to-end:
    - `OPENAI_API_KEY` (if using OpenAI models)
 5. Wait for build to complete.
 6. Open the Space URL and test the UI.
+
+---
+title: Finance Decision Assistant
+emoji: 📊
+colorFrom: blue
+colorTo: green
+sdk: docker
+app_port: 7860
+---
