@@ -18,11 +18,14 @@ myvenv/
 .env.*
 api_keys.txt
 local_test.txt
+github_commands.txt
+test_prompts.txt
 
 # Generated outputs
 eval_outputs/
 src.zip
 
 .codex/
+.claude/
 
-github_commands.txt
+

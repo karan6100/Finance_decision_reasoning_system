@@ -11,10 +11,12 @@ COPY requirements.txt /app/requirements.txt
 RUN pip install --upgrade pip && pip install -r /app/requirements.txt
 
 COPY src /app/src
-COPY start.sh /app/start.sh
-RUN chmod +x /app/start.sh
 
 WORKDIR /app/src
 EXPOSE 7860
 
-CMD ["/app/start.sh"]
+CMD ["streamlit", "run", "streamlit_app.py", \
+     "--server.port=7860", \
+     "--server.address=0.0.0.0", \
+     "--server.headless=true", \
+     "--browser.gatherUsageStats=false"]
