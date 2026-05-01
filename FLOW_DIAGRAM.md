@@ -26,7 +26,7 @@ flowchart TD
 
     F -- allow_basic and low risk --> G[basic_agent_node]
     G --> H[BasicAgent.run]
-    H --> H1[LLMFactory.get_llm().invoke]
+    H --> H1["LLMFactory.get_llm().invoke"]
     H1 --> I[set facts_response]
 
     F -- allow_reasoning --> J[reason_llm_node]
@@ -34,14 +34,14 @@ flowchart TD
     K -- yes --> K1[set stop message<br/>final=true]
     K1 --> Z
     K -- no --> L[ReasonAgent.run]
-    L --> L1[LLMFactory.get_llm().invoke]
+    L --> L1["LLMFactory.get_llm().invoke"]
     L1 --> M[set reasoning_response + increment reason_counter]
 
     I --> N[validation_node]
     M --> N
     N --> O[ValidationAgent.run]
-    O --> O1[LLMFactory.get_llm().invoke]
-    O1 --> O2[json.loads result]
+    O --> O1["LLMFactory.get_llm().invoke"]
+    O1 --> O2["json.loads(result)"]
     O2 --> P[set valid_status, valid_reviews, validation_input]
 
     P --> R{valid_status == pass?}
@@ -49,7 +49,7 @@ flowchart TD
     S --> Z
     R -- yes --> T[summarizer_node]
     T --> V[SummarizerAgent.run]
-    V --> V1[LLMFactory.get_llm().invoke]
+    V --> V1["LLMFactory.get_llm().invoke"]
     V1 --> W[set final_response<br/>final=true]
     W --> Z
 ```
