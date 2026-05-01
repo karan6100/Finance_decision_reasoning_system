@@ -38,8 +38,6 @@ Then click **Evaluation** in the left sidebar.
 - Latency breakdown (min / max / avg / median + per-case bar chart)
 - Download buttons for JSONL + JSON exports
 
-**Why this is interview-friendly:** an interviewer can open the live HF Space, paste their own API key, and watch the eval run end-to-end without touching a terminal.
-
 ---
 
 ## Mode 2: CLI Runner
