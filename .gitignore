@@ -20,6 +20,8 @@ api_keys.txt
 local_test.txt
 github_commands.txt
 test_prompts.txt
+start.sh
+Dockerfile
 
 # Generated outputs
 eval_outputs/
@@ -27,5 +29,6 @@ src.zip
 
 .codex/
 .claude/
+Finance_Decision_Assistant/
 
 
