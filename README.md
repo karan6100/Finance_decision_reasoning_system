@@ -3,8 +3,9 @@ title: Finance Decision Assistant
 emoji: 📊
 colorFrom: blue
 colorTo: green
-sdk: docker
-app_port: 7860
+sdk: streamlit
+sdk_version: "1.39.0"
+app_file: streamlit_app.py
 license: mit
 short_description: A structured, risk-aware finance reasoning system for safe and reliable decision support.
 ---
@@ -17,7 +18,7 @@ short_description: A structured, risk-aware finance reasoning system for safe an
 - It generates responses via controlled reasoning and validates them for factual accuracy, logical soundness, and safety. 
 - Based on validation, the system either delivers a refined answer, retries with improved reasoning, requests specific clarification, or refuses with a clear explanation—ensuring reliable, non-speculative, and context-aware outputs without offering unsafe or unsupported financial advice.
 
-## Local run (optional)
+## Local run
 
 ```bash
 pip install -r requirements.txt
