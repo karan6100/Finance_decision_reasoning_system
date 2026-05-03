@@ -8,7 +8,7 @@ sdk_version: "1.39.0"
 app_file: streamlit_app.py
 pinned: false
 license: mit
-short_description: A structured, risk-aware finance reasoning system for safe and reliable decision support.
+short_description: A risk-aware finance reasoning system for decision support.
 ---
 
 
