@@ -22,6 +22,7 @@ github_commands.txt
 test_prompts.txt
 start.sh
 Dockerfile
+"src/backend_api.py"
 
 # Generated outputs
 eval_outputs/
