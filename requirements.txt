@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 langchain
 langgraph
 langchain_community
@@ -13,8 +12,6 @@ requests>=2.31.0
 pydantic>=2.10
 python-dotenv>=1.0.0
 contextvars
-=======
 altair
 pandas
 streamlit
->>>>>>> cd2653f0783f43d8b517cbcca45fd6990b68b658
