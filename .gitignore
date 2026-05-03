@@ -24,6 +24,7 @@ start.sh
 Dockerfile
 "src/backend_api.py"
 backend_api.py
+main.py
 
 # Generated outputs
 eval_outputs/
