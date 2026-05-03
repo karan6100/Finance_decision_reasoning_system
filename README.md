@@ -1,12 +1,12 @@
 ---
 title: Finance Decision Assistant
-<<<<<<< HEAD
-emoji: 📊
+emoji: "📊"
 colorFrom: blue
 colorTo: green
 sdk: streamlit
 sdk_version: "1.39.0"
 app_file: streamlit_app.py
+pinned: false
 license: mit
 short_description: A structured, risk-aware finance reasoning system for safe and reliable decision support.
 ---
