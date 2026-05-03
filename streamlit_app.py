@@ -2,8 +2,8 @@ import os
 
 import streamlit as st
 
-from logging_config import configure_logging
-from pipeline import run_finance_pipeline
+from src.logging_config import configure_logging
+from src.pipeline import run_finance_pipeline
 
 configure_logging()
 
