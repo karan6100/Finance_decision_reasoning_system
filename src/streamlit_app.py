@@ -1,13 +1,13 @@
-import sys
-from pathlib import Path
+# import sys
+# from pathlib import Path
 
 # Add src/ to sys.path BEFORE any imports from the src codebase
-sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
+# sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 
 import os
 import streamlit as st
-from src.logging_config import configure_logging
-from src.pipeline import run_finance_pipeline
+from logging_config import configure_logging
+from pipeline import run_finance_pipeline
 
 configure_logging()
 

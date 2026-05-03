@@ -5,7 +5,7 @@ colorFrom: blue
 colorTo: green
 sdk: streamlit
 sdk_version: "1.39.0"
-app_file: streamlit_app.py
+app_file: src/streamlit_app.py
 pinned: false
 license: mit
 short_description: A risk-aware finance reasoning system for decision support.
@@ -24,7 +24,7 @@ short_description: A risk-aware finance reasoning system for decision support.
 ```bash
 pip install -r requirements.txt
 cd src
-streamlit run streamlit_app.py
+streamlit run src/streamlit_app.py
 ```
 
 

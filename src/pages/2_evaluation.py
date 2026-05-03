@@ -24,7 +24,7 @@ SRC_DIR = Path(__file__).resolve().parent.parent
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
-from eval_runner import (  # noqa: E402
+from evals.eval_runner import (  # noqa: E402
     aggregate_results,
     build_snapshot,
     heuristic_scores,
@@ -146,7 +146,7 @@ if st.button("Run Evaluation", type="primary", use_container_width=True):
             snapshot = build_snapshot(state)
         except Exception as exc:
             error = str(exc)
-            from eval_runner import EvalSnapshot  # noqa: E402
+            from evals.eval_runner import EvalSnapshot  # noqa: E402
             snapshot = EvalSnapshot(
                 route=None, risk=None, final_response="", candidate_response="",
                 valid_status=None, validation_reason="", attempt_counter=0, max_attempts=0,
