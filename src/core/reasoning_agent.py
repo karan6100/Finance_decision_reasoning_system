@@ -12,24 +12,25 @@ class ReasonAgent:
         # Feedback from previous failed attempt
         feedback = ""
         reviews = state.get("valid_reviews") or {}
-        if state.get("valid_status") == "fail" and  reviews.get("reason"):
-            # prev = (state.get("reasons") or [""])[-1]
-            prev = state.get("reasoning_response", "")
-            feedback = f"""
-                    --- RETRY: PREVIOUS ATTEMPT WAS REJECTED ---
-                    Your previous answer:
-                    <previous_answer>
-                    {prev}
-                    </previous_answer>
+        if state.get("valid_status") == "fail" and reviews.get("reason"):
+            if not reviews.get("parse_error", False):
+                # prev = (state.get("reasons") or [""])[-1]
+                prev = state.get("reasoning_response", "")
+                feedback = f"""
+                        --- RETRY: PREVIOUS ATTEMPT WAS REJECTED ---
+                        Your previous answer:
+                        <previous_answer>
+                        {prev}
+                        </previous_answer>
 
-                    Validator's reason for rejection:
-                    <validator_feedback>
-                    {reviews["reason"]}
-                    </validator_feedback>
+                        Validator's reason for rejection:
+                        <validator_feedback>
+                        {reviews["reason"]}
+                        </validator_feedback>
 
-                    Write a new answer that fixes every issue the validator raised.
-                    Do not repeat the previous answer verbatim.
-                    """
+                        Write a new answer that fixes every issue the validator raised.
+                        Do not repeat the previous answer verbatim.
+                        """
 
 
         prompt = f""" You are a Finance Reasoning Agent.

@@ -9,6 +9,10 @@ from typing import Any
 validation_agent = ValidationAgent()
 logger = logging.getLogger(__name__)
 
+# Validator agent parsing error counter
+MAX_PARSE_RETRIES = 2
+
+
 
 def _strip_code_fences(text: str) -> str:
     '''removes surrounding triple backticks from a string, if they exist.'''
@@ -47,7 +51,10 @@ def _safe_parse_validation_result(raw_result: Any) -> dict:
         raw_text = str(raw_result or "").strip()
 
     if not raw_text:
-        return {"decision": "fail", "reason": "Validation model returned empty output."}
+        return {"decision": "fail", 
+                "reason": "Validation model returned empty output.",
+                "parse_error": True,
+                }
 
     candidates = [
         raw_text,
@@ -65,6 +72,7 @@ def _safe_parse_validation_result(raw_result: Any) -> dict:
                 return {
                     "decision": "fail",
                     "reason": f"Invalid validation decision value: {decision!r}.",
+                    "parse_error": True,
                 }
             return {"decision": decision, "reason": reason}
         except (json.JSONDecodeError, TypeError, AttributeError):
@@ -74,10 +82,12 @@ def _safe_parse_validation_result(raw_result: Any) -> dict:
     return {
         "decision": "fail",
         "reason": f"Validation output was not valid JSON. Raw output preview: {preview}",
+        "parse_error": True,
     }
 
 
 def validation_node(state: OverallState):
+    parse_retries = 0 # the only counter: resets for each new answer
     while True:
         attempts = state.get("attempt_counter", 0)
         max_attempts = state.get("max_attempts", 5)
@@ -113,29 +123,51 @@ def validation_node(state: OverallState):
                 "max_attempts": max_attempts,
             }
             return state
-        
+
+        # Parse error count check
+        if result.get("parse_error"):
+            parse_retries += 1
+            if parse_retries <= MAX_PARSE_RETRIES: # cap separately so a broken validator can't loop forever
+                logger.warning("Validator output unparseable, re-validating | retry=%s", parse_retries)
+                continue                # same answer, validate again
+            # retries exhausted for this answer
+            # The validator itself is failing; a new answer won't help.
+            logger.error("Validator unavailable after %s parse failures | reason=%r",
+                         parse_retries, result.get("reason"))
+            state["validation_meta"] = {
+                "status": "validator_unavailable",
+                "attempts": attempts,
+                "parse_retries": parse_retries,
+                "last_reason": result.get("reason"),
+            }
+            state["final_response"] = (
+                "We couldn't verify this answer right now. Please try again shortly."
+            )
+            state["final"] = True
+            return state
+
         # No. of attempts reached max attempts
         if attempts >= max_attempts:
-                    last_reason = (
-                        state.get("valid_reviews", {}) or {}
-                    ).get("reason", "No validation reason provided.")
-                    logger.warning(
-                        "Validation max attempts reached | attempts=%s max_attempts=%s route=%s last_reason=%r query=%r",
-                        attempts,
-                        max_attempts,
-                        state.get("route"),
-                        last_reason,
-                        state.get("query"),
-                    )
-                    state["validation_meta"] = {
-                        "status": "max_attempts_reached",
-                        "attempts": attempts,
-                        "max_attempts": max_attempts,
-                        "last_reason": last_reason,
-                    }
-                    state["final_response"] = f"Could not provide the output for your query. Reason: {last_reason}"
-                    state["final"] = True
-                    return state
+            last_reason = (
+                state.get("valid_reviews", {}) or {}
+            ).get("reason", "No validation reason provided.")
+            logger.warning(
+                "Validation max attempts reached | attempts=%s max_attempts=%s route=%s last_reason=%r query=%r",
+                attempts,
+                max_attempts,
+                state.get("route"),
+                last_reason,
+                state.get("query"),
+            )
+            state["validation_meta"] = {
+                "status": "max_attempts_reached",
+                "attempts": attempts,
+                "max_attempts": max_attempts,
+                "last_reason": last_reason,
+            }
+            state["final_response"] = f"Could not provide the output for your query. Reason: {last_reason}"
+            state["final"] = True
+            return state
 
         logger.info(
             "Validation failed | attempt=%s/%s source=%s reason=%r",
@@ -145,6 +177,7 @@ def validation_node(state: OverallState):
             state.get("valid_reviews", {}).get("reason"),
         )
 
+        parse_retries = 0                  # new answer coming -> fresh budget
         # fail -> regenerate (these nodes increment attempt_counter)
         if source_agent == "basic":
             # state["facts_response"] = "" 
