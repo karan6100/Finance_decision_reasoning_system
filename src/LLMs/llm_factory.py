@@ -5,9 +5,19 @@ from dotenv import load_dotenv
 from typing import Optional, Dict, Any
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
+from langchain_core.rate_limiters import InMemoryRateLimiter
 
 
 load_dotenv()
+
+# One shared limiter for all LLM instances. 0.5 req/s means at most one call every 2s.
+LLM_MIN_INTERVAL_S = float(os.getenv("LLM_MIN_INTERVAL_SECONDS", "0.5"))
+_rate_limiter = InMemoryRateLimiter(
+    requests_per_second=LLM_MIN_INTERVAL_S,
+    check_every_n_seconds=0.1, 
+    max_bucket_size=1,   # no bursts: calls are strictly spaced
+)
+
 
 class LLMFactory:
     _configs: Optional[Dict[str, Any]] = None
@@ -58,7 +68,8 @@ class LLMFactory:
             return ChatGroq(
                 model=config['model'],
                 temperature=config['temperature'],
-                api_key=api_key
+                api_key=api_key,
+                rate_limiter=_rate_limiter,
             )
 
         elif provider == 'openai':
@@ -69,7 +80,8 @@ class LLMFactory:
             return ChatOpenAI(
                 model=config['model'],
                 temperature=config['temperature'],
-                api_key=api_key
+                api_key=api_key,
+                rate_limiter=_rate_limiter,
             )
         else:
             raise ValueError(f"Unsupported provider: {provider}")

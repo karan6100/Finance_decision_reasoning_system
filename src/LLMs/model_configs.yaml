@@ -3,7 +3,7 @@
 
 basic:  # Fast, cheap for low-risk factual queries
   groq:
-    model: "llama-3.1-8b-instant"
+    model: "openai/gpt-oss-20b"
     temperature: 0.0
   openai:
     model: "gpt-3.5-turbo"
@@ -11,7 +11,7 @@ basic:  # Fast, cheap for low-risk factual queries
 
 reasoning:  # More capable for medium-risk analysis
   groq:
-    model: "llama-3.3-70b-versatile"
+    model: "openai/gpt-oss-120b"
     temperature: 0.1
   openai:
     model: "openai/gpt-oss-20b"
@@ -19,8 +19,16 @@ reasoning:  # More capable for medium-risk analysis
 
 complex:  # High capability for high-risk or complex reasoning
   groq:
-    model: "groq/compound-mini"
+    model: "openai/gpt-oss-120b"
     temperature: 0.2
   openai:
     model: "openai/gpt-4o"
     temperature: 0.2
+
+judge:  # LLM-as-a-judge (different family from generator)
+  groq:
+    model: "qwen/qwen3.8-27b"
+    temperature: 0.0
+  openai:
+    model: "gpt-4o"
+    temperature: 0.0

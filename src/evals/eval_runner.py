@@ -8,7 +8,7 @@ Why this script exists:
 - It creates interview-friendly artifacts in `eval_outputs/`
 
 Quick start:
-1) Keep `evals/eval_cases.jsonl` inside `src/` (already added for you)
+1) Keep `evals/eval_cases.jsonl` inside `src/`
 2) Run:
    python eval_runner.py
 3) Optional (LLM judge mode):
@@ -32,7 +32,7 @@ from pathlib import Path
 from typing import Any, Callable, Optional
 
 
-SRC_DIR = Path(__file__).resolve().parent
+SRC_DIR = Path(__file__).resolve().parent.parent
 if str(SRC_DIR) not in sys.path:
     sys.path.insert(0, str(SRC_DIR))
 
@@ -342,6 +342,12 @@ Rubric (0.0 to 1.0):
 - faithfulness: final response stays aligned with candidate response
 - clarity: understandable and structured
 
+Scoring guidance:
+- Longer answers do NOT automatically equal better answers. Avoid verbosity bias.
+- Do not reward length, extra detail, or repetition on its own; judge whether the content is correct, relevant, and sufficient for the query.
+- A concise answer that fully addresses the query should score as high as, or higher than, a longer one with the same substance.
+- Penalize padding, filler, or tangential content that does not help the user.
+
 Return strict JSON:
 {{
   "routing": 0.0,
@@ -448,7 +454,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-dir", type=Path, default=SRC_DIR / "eval_outputs", help="Directory for reports.")
     parser.add_argument("--max-cases", type=int, default=0, help="Limit number of cases (0 means all).")
     parser.add_argument("--use-llm-judge", action="store_true", help="Use LLM judge scoring (requires API key).")
-    parser.add_argument("--judge-provider", choices=["groq", "openai"], default="groq", help="Judge provider.")
+    parser.add_argument("--judge-provider", default="groq", help="Judge provider.")
     parser.add_argument("--judge-model", type=str, default="", help="Optional model override for judge.")
     parser.add_argument("--print-failures", action="store_true", help="Print only failed-case summaries.")
     parser.add_argument("--include-traceback", action="store_true", help="Include full stack traces in result files on errors.")
@@ -486,7 +492,7 @@ def main() -> None:
             try:
                 llm_judge = LLMFactory.get_llm(
                     provider=args.judge_provider,
-                    task_type="complex",
+                    task_type="judge",
                     model_name=(args.judge_model or None),
                 )
             except Exception as exc:
@@ -595,6 +601,7 @@ def main() -> None:
     summary["cases_file"] = str(args.cases)
     summary["use_llm_judge"] = bool(llm_judge is not None)
     summary["llm_judge_provider"] = args.judge_provider if llm_judge is not None else None
+    summary["llm_judge_model"] = getattr(llm_judge, "model_name", None) if llm_judge is not None else None
     summary["run_timestamp_utc"] = run_ts
     summary["runtime_sec"] = round(time.perf_counter() - started, 2)
 

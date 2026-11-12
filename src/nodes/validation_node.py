@@ -149,7 +149,7 @@ def validation_node(state: OverallState):
             state["facts_response"] = ""
             state = basic_node.basic_agent_node(state)
         else:
-            state["reasoning_response"] = ""
+            state["reasoning_response"] = ""  # Adding feedback from the validation node to the reasoning node for regeneration
             state = reason_node.reason_llm_node(state)
 
         if state.get("final"):

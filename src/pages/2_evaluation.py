@@ -127,7 +127,7 @@ if st.button("Run Evaluation", type="primary", use_container_width=True):
     if use_llm_judge:
         try:
             from LLMs.llm_factory import LLMFactory  # noqa: E402
-            llm_judge = LLMFactory.get_llm(provider=provider, task_type="complex")
+            llm_judge = LLMFactory.get_llm(provider=provider, task_type="judge")
         except Exception as exc:
             st.warning(f"LLM judge unavailable ({exc}). Falling back to heuristic scoring.")
 
@@ -185,6 +185,9 @@ if st.button("Run Evaluation", type="primary", use_container_width=True):
 
     # ── Summary metrics ───────────────────────────────────────────────────────
     summary = aggregate_results(results)
+    summary["use_llm_judge"] = bool(llm_judge is not None)
+    summary["llm_judge_provider"] = provider if llm_judge is not None else None
+    summary["llm_judge_model"] = getattr(llm_judge, "model_name", None) if llm_judge is not None else None
     latencies = [r["runtime_ms"] for r in results if not r["error"]]
 
     st.subheader("Overall Results")
