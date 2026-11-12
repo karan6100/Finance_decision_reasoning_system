@@ -34,7 +34,10 @@ src.zip
 .codex/
 .claude/
 Finance_Decision_Assistant/
+Eval Dashboard_files/
+
 
 "src/.claude/" 
 NEXT.md
 DEV_LOG.md
+Eval Dashboard.html
