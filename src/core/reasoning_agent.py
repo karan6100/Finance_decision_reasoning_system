@@ -1,5 +1,5 @@
 from LLMs.llm_factory import LLMFactory
-from schema.types import ReasoningInput, ReasonOutput
+from schema.types import ReasoningInput, ReasonOutput, OverallState
 
 
 class ReasonAgent:
@@ -7,7 +7,30 @@ class ReasonAgent:
     def __init__(self):
         self.llm = LLMFactory.get_llm(task_type='reasoning')
 
-    def run(self, inp: ReasoningInput)-> ReasonOutput:
+    def run(self, inp: ReasoningInput, state: OverallState)-> ReasonOutput:
+
+        # Feedback from previous failed attempt
+        feedback = ""
+        reviews = state.get("valid_reviews") or {}
+        if state.get("valid_status") == "fail" and  reviews.get("reason"):
+            # prev = (state.get("reasons") or [""])[-1]
+            prev = state.get("reasoning_response", "")
+            feedback = f"""
+                    --- RETRY: PREVIOUS ATTEMPT WAS REJECTED ---
+                    Your previous answer:
+                    <previous_answer>
+                    {prev}
+                    </previous_answer>
+
+                    Validator's reason for rejection:
+                    <validator_feedback>
+                    {reviews["reason"]}
+                    </validator_feedback>
+
+                    Write a new answer that fixes every issue the validator raised.
+                    Do not repeat the previous answer verbatim.
+                    """
+
 
         prompt = f""" You are a Finance Reasoning Agent.
                     The system has already classified:
@@ -44,6 +67,8 @@ class ReasonAgent:
                     input: {inp.query} \n
                     intent: {inp.intent} \n
                     risk level: {inp.risk} \n
+                    {feedback}
+                    
                     """
 
         # Response

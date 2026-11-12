@@ -12,6 +12,7 @@ myvenv/
 .ipynb_checkpoints/
 .vscode/
 .codex/
+.claude/
 
 # Secrets and local-only files
 .env
@@ -35,3 +36,5 @@ src.zip
 Finance_Decision_Assistant/
 
 "src/.claude/" 
+NEXT.md
+DEV_LOG.md

@@ -82,28 +82,6 @@ def validation_node(state: OverallState):
         attempts = state.get("attempt_counter", 0)
         max_attempts = state.get("max_attempts", 5)
 
-        if attempts >= max_attempts:
-            last_reason = (
-                state.get("valid_reviews", {}) or {}
-            ).get("reason", "No validation reason provided.")
-            logger.warning(
-                "Validation max attempts reached | attempts=%s max_attempts=%s route=%s last_reason=%r query=%r",
-                attempts,
-                max_attempts,
-                state.get("route"),
-                last_reason,
-                state.get("query"),
-            )
-            state["validation_meta"] = {
-                "status": "max_attempts_reached",
-                "attempts": attempts,
-                "max_attempts": max_attempts,
-                "last_reason": last_reason,
-            }
-            state["final_response"] = f"Could not provide the output for your query. Reason: {last_reason}"
-            state["final"] = True
-            return state
-
         # Pick source + candidate
         if state.get("facts_response"):
             source_agent = "basic"
@@ -135,6 +113,29 @@ def validation_node(state: OverallState):
                 "max_attempts": max_attempts,
             }
             return state
+        
+        # No. of attempts reached max attempts
+        if attempts >= max_attempts:
+                    last_reason = (
+                        state.get("valid_reviews", {}) or {}
+                    ).get("reason", "No validation reason provided.")
+                    logger.warning(
+                        "Validation max attempts reached | attempts=%s max_attempts=%s route=%s last_reason=%r query=%r",
+                        attempts,
+                        max_attempts,
+                        state.get("route"),
+                        last_reason,
+                        state.get("query"),
+                    )
+                    state["validation_meta"] = {
+                        "status": "max_attempts_reached",
+                        "attempts": attempts,
+                        "max_attempts": max_attempts,
+                        "last_reason": last_reason,
+                    }
+                    state["final_response"] = f"Could not provide the output for your query. Reason: {last_reason}"
+                    state["final"] = True
+                    return state
 
         logger.info(
             "Validation failed | attempt=%s/%s source=%s reason=%r",
@@ -146,10 +147,10 @@ def validation_node(state: OverallState):
 
         # fail -> regenerate (these nodes increment attempt_counter)
         if source_agent == "basic":
-            state["facts_response"] = ""
+            # state["facts_response"] = "" 
             state = basic_node.basic_agent_node(state)
         else:
-            state["reasoning_response"] = ""  # Adding feedback from the validation node to the reasoning node for regeneration
+            # state["reasoning_response"] = ""  
             state = reason_node.reason_llm_node(state)
 
         if state.get("final"):

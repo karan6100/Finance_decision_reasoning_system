@@ -21,7 +21,7 @@ def reason_llm_node(state: OverallState):
         risk= state['profile'].risk
     )
 
-    out = agent.run(inp= inp)
+    out = agent.run(inp= inp, state=state)
 
     state["attempt_counter"] = attempts + 1
     state["reasoning_response"] = out.reasoning
