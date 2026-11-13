@@ -19,44 +19,58 @@ short_description: A risk-aware finance reasoning system for decision support.
 - It generates responses via controlled reasoning and validates them for factual accuracy, logical soundness, and safety. 
 - Based on validation, the system either delivers a refined answer, retries with improved reasoning, requests specific clarification, or refuses with a clear explanation—ensuring reliable, non-speculative, and context-aware outputs without offering unsafe or unsupported financial advice.
 
+## Recent improvements
+
+- **Every answer is validated before it reaches the user.** The final retry is no longer returned unchecked.
+- **Retries learn from their failures.** A rejected answer and the validator's reason are passed into the next reasoning attempt.
+- **Fails safely when the validator itself breaks.** Malformed validator output triggers a re-check of the same answer, not a regeneration. If it keeps failing, no unverified answer is shown.
+- **Built-in rate limiting** keeps LLM calls within free-tier provider limits.
+- **A separate judge model** for LLM-as-a-Judge evals, with guidance against rewarding long answers.
+
+See [CHANGELOG.md](CHANGELOG.md) for the full history.
+
 ## Local run
+
+From the project root:
 
 ```bash
 pip install -r requirements.txt
-cd src
 streamlit run src/streamlit_app.py
 ```
+
+Paste a Groq or OpenAI API key in the sidebar, or set `GROQ_API_KEY` / `OPENAI_API_KEY` in a `.env` file.
 
 
 # Eval Guide (LLM Quality Focus)
 
 This project includes a lightweight evaluator to measure **agent quality**, not API benchmarking. It runs in two modes:
 
-- **Visual Dashboard** — a Streamlit page with progress bars, charts, and exports (best for demos and interviews)
+- **Visual Dashboard** — a Streamlit page with progress bars, charts, and exports (best for demos)
 - **CLI** — terminal-based runner that writes JSON reports to `eval_outputs/` (best for CI and reproducibility)
 
 Both modes share the same scoring logic and test cases, so results are identical.
 
 ## Files
-- `eval_runner.py` — core scoring logic + CLI runner
-- `pages/2_Evaluation.py` — Streamlit visual dashboard
-- `evals/eval_cases.jsonl` — starter test set (20 cases)
+All paths are relative to `src/`.
+- `evals/eval_runner.py` — core scoring logic + CLI runner
+- `pages/2_evaluation.py` — Streamlit visual dashboard
+- `evals/eval_cases.jsonl` — starter test set
 - `eval_outputs/` — generated reports (git-ignored)
 
 ---
 
 ## Mode 1: Streamlit Eval Dashboard (recommended)
 
-From inside `src/`:
+From the project root:
 
 ```bash
-streamlit run streamlit_app.py
+streamlit run src/streamlit_app.py
 ```
 
 Then click **Evaluation** in the left sidebar.
 
 **Features:**
-- Preview the 20 built-in test cases before running
+- Preview the built-in test cases before running
 - "What do scores mean?" explainer for non-technical reviewers
 - Live progress bar with per-case status
 - Toggle for **LLM-as-a-Judge** mode
@@ -68,33 +82,29 @@ Then click **Evaluation** in the left sidebar.
 - Latency breakdown (min / max / avg / median + per-case bar chart)
 - Download buttons for JSONL + JSON exports
 
-**Why this is interview-friendly:** an interviewer can open the live HF Space, paste their own API key, and watch the eval run end-to-end without touching a terminal.
-
 ---
 
 ## Mode 2: CLI Runner
 
-From inside `src/`:
+From the project root:
 
 ```bash
-python eval_runner.py
+python src/evals/eval_runner.py
 ```
 
 Optional flags:
 
 ```bash
-python eval_runner.py --max-cases 5
-python eval_runner.py --print-failures
-python eval_runner.py --use-llm-judge --judge-provider groq
+python src/evals/eval_runner.py --max-cases 5
+python src/evals/eval_runner.py --print-failures
+python src/evals/eval_runner.py --use-llm-judge --judge-provider groq
+python src/evals/eval_runner.py --use-llm-judge --judge-model <model-name>   # override the judge model
+python src/evals/eval_runner.py --include-traceback                          # full stack traces in result files
 ```
 
-If you run from project root:
+The script works from any directory. From inside `src/`, use `python evals/eval_runner.py`.
 
-```bash
-python src/eval_runner.py
-```
-
-**Output files:**
+**Output files** (written to `src/eval_outputs/`):
 - `eval_outputs/summary.json` — global metrics
 - `eval_outputs/per_case_results.jsonl` — one row per test case
 - Timestamped copies are also saved each run
@@ -119,7 +129,7 @@ python src/eval_runner.py
 ### Scoring methods
 
 - **Heuristic** (default) — fast, rule-based checks; no extra API calls
-- **LLM-as-a-Judge** — a second LLM call reads the full response and scores it against the rubric. More accurate but slower and uses extra API credits
+- **LLM-as-a-Judge** — a second LLM call reads the full response and scores it against the rubric. More accurate but slower and uses extra API credits. The judge model is set by the `judge` entry in `src/LLMs/model_configs.yaml`, separately from the answer models.
 
 ---
 
@@ -139,6 +149,7 @@ Both the dashboard and CLI will pick up new cases automatically.
 
 - **Missing API key** — set `GROQ_API_KEY` or `OPENAI_API_KEY` (or paste it in the dashboard sidebar)
 - **Network blocked** — failed cases are reported with error details; the rest of the run continues
-- **Import/path issue** — run from `src/` or use `python src/eval_runner.py`
+- **Provider rate-limit errors** — all LLM calls share a rate limiter, set by `LLM_MIN_INTERVAL_SECONDS`. The value is in **requests per second**; the default `0.5` means one call every 2 seconds. Lower it (e.g. `0.25`) to slow calls down further.
+- **Import/path issue** — use the paths above (`streamlit run src/streamlit_app.py`, `python src/evals/eval_runner.py`)
 - **LLM judge returns non-JSON** — automatic fallback to heuristic scoring with a note in `notes[]`
 

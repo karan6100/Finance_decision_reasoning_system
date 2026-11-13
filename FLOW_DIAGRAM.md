@@ -25,29 +25,43 @@ flowchart TD
     Q --> Z
 
     F -- allow_basic and low risk --> G[basic_agent_node]
-    G --> H[BasicAgent.run]
+    G --> GK{attempt_counter >= max_attempts?}
+    GK -- yes --> GK1[set stop message<br/>final=true]
+    GK1 --> Z
+    GK -- no --> H[BasicAgent.run]
     H --> H1["LLMFactory.get_llm().invoke"]
-    H1 --> I[set facts_response]
+    H1 --> I[set facts_response + increment attempt_counter]
 
     F -- allow_reasoning --> J[reason_llm_node]
-    J --> K{reason_counter >= max_reasoning_retries?}
+    J --> K{attempt_counter >= max_attempts?}
     K -- yes --> K1[set stop message<br/>final=true]
     K1 --> Z
-    K -- no --> L[ReasonAgent.run]
+    K -- no --> L[ReasonAgent.run<br/>on retry: includes previous answer + validator reason]
     L --> L1["LLMFactory.get_llm().invoke"]
-    L1 --> M[set reasoning_response + increment reason_counter]
+    L1 --> M[set reasoning_response + increment attempt_counter]
 
     I --> N[validation_node]
     M --> N
     N --> O[ValidationAgent.run]
     O --> O1["LLMFactory.get_llm().invoke"]
-    O1 --> O2["json.loads(result)"]
+    O1 --> O2["_safe_parse_validation_result"]
     O2 --> P[set valid_status, valid_reviews, validation_input]
 
     P --> R{valid_status == pass?}
-    R -- no --> S[set validation failure message<br/>final=true]
-    S --> Z
     R -- yes --> T[summarizer_node]
+    R -- no --> PE{parse_error?}
+
+    PE -- yes --> PR{parse_retries <= MAX_PARSE_RETRIES?}
+    PR -- "yes: re-validate same answer" --> O
+    PR -- no --> VU[validator_unavailable message<br/>final=true]
+    VU --> Z
+
+    PE -- no --> MA{attempt_counter >= max_attempts?}
+    MA -- yes --> S[max_attempts_reached message<br/>final=true]
+    S --> Z
+    MA -- no --> SRC{source_agent?}
+    SRC -- "reasoning: retry" --> J
+    SRC -- "basic: retry" --> G
     T --> V[SummarizerAgent.run]
     V --> V1["LLMFactory.get_llm().invoke"]
     V1 --> W[set final_response<br/>final=true]

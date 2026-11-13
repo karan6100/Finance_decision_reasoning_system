@@ -75,6 +75,9 @@ class OverallState(TypedDict, total=False):
     #Final op
     final: bool
 
+    # Observability: one entry per tracked node run (see observability.py)
+    node_metrics: list[dict[str, Any]]
+
 
 @dataclass
 class BasicInput:

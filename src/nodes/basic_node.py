@@ -1,9 +1,11 @@
 from core.basic_agent import BasicAgent
+from observability import track_node
 from schema.types import BasicInput, OverallState
 
 
 basic_agent = BasicAgent()
 
+@track_node("basic")
 def basic_agent_node(state: OverallState):
 
     attempts = state.get("attempt_counter", 0)

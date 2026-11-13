@@ -1,10 +1,18 @@
 # LLM Model Configurations
 # Define model settings for different task types and providers
 
+# Optional per-entry keys (passed to the client only when present):
+#   max_tokens:       hard cap on completion tokens. For gpt-oss this INCLUDES hidden
+#                     reasoning tokens, so it is a ceiling, not a target.
+#   reasoning_effort: gpt-oss only ("low" | "medium" | "high"). Lower = fewer hidden
+#                     reasoning tokens = less of the per-model tokens/min (TPM) budget.
+
 basic:  # Fast, cheap for low-risk factual queries
   groq:
     model: "openai/gpt-oss-20b"
     temperature: 0.0
+    reasoning_effort: "low"
+    max_tokens: 2048
   openai:
     model: "gpt-3.5-turbo"
     temperature: 0.0
@@ -13,6 +21,8 @@ reasoning:  # More capable for medium-risk analysis
   groq:
     model: "openai/gpt-oss-120b"
     temperature: 0.1
+    reasoning_effort: "low"
+    max_tokens: 2048
   openai:
     model: "openai/gpt-oss-20b"
     temperature: 0.1
@@ -21,6 +31,8 @@ complex:  # High capability for high-risk or complex reasoning
   groq:
     model: "openai/gpt-oss-120b"
     temperature: 0.2
+    reasoning_effort: "medium"
+    max_tokens: 2048
   openai:
     model: "openai/gpt-4o"
     temperature: 0.2
@@ -30,5 +42,5 @@ judge:  # LLM-as-a-judge (different family from generator)
     model: "qwen/qwen3.8-27b"
     temperature: 0.0
   openai:
-    model: "gpt-4o"
+    model: "openai/gpt-4o"
     temperature: 0.0

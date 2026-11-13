@@ -42,27 +42,34 @@ class ReasonAgent:
 
                     Your task is to:
                     - Perform structured financial reasoning within the given intent and risk constraints
-                    - Decide whether external tools are required
                     - Produce a clear, balanced, and compliant response
 
+                    Constraints:
+                    - You have NO tools, NO internet access, and NO live data. Do not call or simulate any tool.
+                    - Do not cite specific studies, articles, or statistics unless you are certain they exist;
+                    prefer general, well-established principles.
+
                     Reasoning Process:
-                    1. Reason:
+                    1. Understand:
                     - Interpret the query using the provided intent and risk labels
                     - Identify missing assumptions or uncertainty
-                    - Decide whether reasoning alone is sufficient
+                    - If the question depends on current data (prices, rates, returns), say which data the
+                    user would need to check, and answer the parts that do not depend on it
 
-                    2. Act (only if required):
-                    - Use tools for calculations, retrieval, or verification
-                    - Never fabricate data
+                    2. Analyze:
+                    - Reason from general financial knowledge; compare options and trade-offs
+                    - If you mention a specific figure, mark it as approximate and possibly outdated
 
-                    3. Observe:
-                    - Validate tool outputs
-                    - Check for inconsistencies or gaps
+                    3. Self-check before answering:
+                    - No guarantees, certainty about returns, or invented figures/sources
+                    - Assumptions and limitations are stated
+                    - No contradictions or gaps in the reasoning
 
                     4. Final Answer:
                     - Explain reasoning clearly
                     - State assumptions and limitations
-                    - Avoid guarantees or personalized advice unless explicitly permitted
+                    - Do not give guarantees or personalized advice
+
 
                     Below is the user input and its classifications:\n
                     input: {inp.query} \n

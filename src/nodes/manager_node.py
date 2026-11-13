@@ -1,4 +1,5 @@
 from core.decision_gate import DecisionGate
+from observability import track_node
 from core.manager_agent import ManagerAgent
 from nodes.basic_node import basic_agent_node
 from nodes.reason_node import reason_llm_node
@@ -33,6 +34,7 @@ def require_clarification(query: str) -> str:
     )
 
 
+@track_node("manager")
 def manager_node(state: OverallState):
 
     profile = state.get("profile", None)

@@ -6,6 +6,7 @@ from typing import Optional, Dict, Any
 from langchain_groq import ChatGroq
 from langchain_openai import ChatOpenAI
 from langchain_core.rate_limiters import InMemoryRateLimiter
+from observability import usage_callback  # per-node token accounting
 
 
 load_dotenv()
@@ -17,6 +18,14 @@ _rate_limiter = InMemoryRateLimiter(
     check_every_n_seconds=0.1, 
     max_bucket_size=1,   # no bursts: calls are strictly spaced
 )
+
+# The limiter above only spaces REQUESTS; Groq also enforces tokens/min per model, which
+# still yields 429s. The provider SDK retries those itself, honouring the server's
+# Retry-After header, so give it enough attempts to ride out a TPM window (default is 2).
+LLM_MAX_RETRIES = int(os.getenv("LLM_MAX_RETRIES", "6"))
+
+# Optional YAML keys forwarded to the client only when set (see model_configs.yaml).
+_OPTIONAL_PARAMS = ("max_tokens", "reasoning_effort")
 
 
 class LLMFactory:
@@ -60,6 +69,8 @@ class LLMFactory:
             if not config:
                 raise ValueError(f"No configuration found for provider '{provider}' and task_type '{task_type}'")
 
+        optional = {k: config[k] for k in _OPTIONAL_PARAMS if config.get(k) is not None}
+
         if provider == 'groq':
             api_key = os.getenv("GROQ_API_KEY")
             if not api_key:
@@ -70,6 +81,9 @@ class LLMFactory:
                 temperature=config['temperature'],
                 api_key=api_key,
                 rate_limiter=_rate_limiter,
+                max_retries=LLM_MAX_RETRIES,
+                callbacks=[usage_callback],
+                **optional,
             )
 
         elif provider == 'openai':
@@ -82,6 +96,9 @@ class LLMFactory:
                 temperature=config['temperature'],
                 api_key=api_key,
                 rate_limiter=_rate_limiter,
+                max_retries=LLM_MAX_RETRIES,
+                callbacks=[usage_callback],
+                **optional,
             )
         else:
             raise ValueError(f"Unsupported provider: {provider}")

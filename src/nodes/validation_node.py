@@ -1,4 +1,5 @@
 from core.validation_agent import ValidationAgent
+from observability import track_node
 from schema.types import OverallState, ValidationInput
 from nodes import basic_node, reason_node
 import json
@@ -86,6 +87,7 @@ def _safe_parse_validation_result(raw_result: Any) -> dict:
     }
 
 
+@track_node("validation")
 def validation_node(state: OverallState):
     parse_retries = 0 # the only counter: resets for each new answer
     while True:

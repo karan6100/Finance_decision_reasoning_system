@@ -1,9 +1,11 @@
 from core.reasoning_agent import ReasonAgent
+from observability import track_node
 from schema.types import ReasoningInput, OverallState
 
 
 agent = ReasonAgent()
 
+@track_node("reasoning")
 def reason_llm_node(state: OverallState):
 
     max_retries = state.get("max_attempts", 5)

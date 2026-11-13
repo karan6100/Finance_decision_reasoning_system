@@ -1,9 +1,11 @@
 from core.summarizer_agent import SummarizerAgent
+from observability import track_node
 from schema.types import OverallState
 
 summarizer_agent = SummarizerAgent()
 
 
+@track_node("summarizer")
 def summarizer_node(state: OverallState):
     """
     Summarizer node that beautifies and summarizes validated responses.

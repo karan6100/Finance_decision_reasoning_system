@@ -4,6 +4,7 @@ import os
 import sys
 from contextvars import ContextVar, Token
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 
@@ -75,12 +76,22 @@ class JsonFormatter(logging.Formatter):
 
 
 def configure_logging(service_name: str = "finance-decision-assistant") -> None:
+    """
+    Configure root logging once per process.
+
+    Env vars:
+        LOG_LEVEL   INFO (default), DEBUG, WARNING, ...
+        LOG_FORMAT  "text" (default) or "json" -- format of the stdout handler
+        LOG_FILE    optional path; if set, ALSO writes every record there as JSON
+                    lines (always JSON, so it can be parsed with jq/pandas)
+    """
     logger = logging.getLogger()
     if getattr(logger, "_finance_logging_configured", False):
         return
 
     log_level = os.getenv("LOG_LEVEL", "INFO").upper()
     log_format = os.getenv("LOG_FORMAT", "text").lower()
+    log_file = os.getenv("LOG_FILE", "").strip()
     logger.setLevel(getattr(logging, log_level, logging.INFO))
 
     handler = logging.StreamHandler(sys.stdout)
@@ -96,6 +107,20 @@ def configure_logging(service_name: str = "finance-decision-assistant") -> None:
 
     logger.handlers.clear()
     logger.addHandler(handler)
+
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_path, encoding="utf-8")
+        file_handler.addFilter(RequestIdFilter())
+        file_handler.setFormatter(JsonFormatter())
+        logger.addHandler(file_handler)
+
+    # httpx logs every HTTP request at INFO (incl. each 429 the SDK then retries), which
+    # floods the log. Retries stay visible via the "groq._base_client"/"openai._base_client"
+    # "Retrying request ..." INFO lines; a request that finally fails raises and is logged.
+    logging.getLogger("httpx").setLevel(logging.WARNING)
+
     logger._finance_logging_configured = True  # type: ignore[attr-defined]
 
     logging.getLogger(__name__).info(
@@ -104,6 +129,7 @@ def configure_logging(service_name: str = "finance-decision-assistant") -> None:
             "service": service_name,
             "log_level": log_level,
             "log_format": log_format,
+            "log_file": log_file or None,
         },
     )
 
