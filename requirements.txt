@@ -12,3 +12,4 @@ contextvars
 altair
 pandas
 streamlit
+pdfplumber
